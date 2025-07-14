@@ -5,16 +5,30 @@ import java.util.Scanner;
 public class ATM {
     private static final Scanner sc = new Scanner(System.in);
 
-    private ATM() {}
+    private ATM() {
+    }
 
     public static void powerOn() {
         System.out.println("Please enter your user number: ");
         String userNumber = sc.nextLine();
         BankAccount user = Database.checkUser(userNumber);
-        if (user != null) {
+        if (user == null) {
+            System.out.println("Invalid user number.");
+            return;
+        }
+        if (user.getPinCode() == 0) {
+            System.out.println("Welcome, " + user.getOwnerName() + "! This is your first login.");
+            user.setPinCode();
+        }
+
+        System.out.print("Please enter your PIN code: ");
+        int enteredPin = sc.nextInt();
+        sc.nextLine();
+
+        if (user.getPinCode() == enteredPin) {
             System.out.println("--- Welcome " + user.getOwnerName() + "! ---");
             startSession(user);
-        } else System.out.println("Invalid user number");
+        } else System.out.println("Incorrect PIN code. Access denied.");
     }
 
     public static void startSession(BankAccount account) {
@@ -40,9 +54,11 @@ public class ATM {
                     System.out.println("Enter amount to withdraw:");
                     double amount = sc.nextDouble();
                     int check = account.withdraw(amount);
-                    if (check == 1) System.out.println("Withdrawn from account. New balance is: " + account.getBalance());
-                    else if(check == 0)System.out.println("Error: Withdraw amount cannot be bigger than your balance.");
-                    else  System.out.println("Error: Withdrawal amount cannot be negative or zero.");
+                    if (check == 1)
+                        System.out.println("Withdrawn from account. New balance is: " + account.getBalance());
+                    else if (check == 0)
+                        System.out.println("Error: Withdraw amount cannot be bigger than your balance.");
+                    else System.out.println("Error: Withdrawal amount cannot be negative or zero.");
                     break;
                 }
 
